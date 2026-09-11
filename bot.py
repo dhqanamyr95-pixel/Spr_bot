@@ -35,6 +35,14 @@ from handlers.admin_channels import (
     channel_delete,
 )
 
+from handlers.admin_videos import (
+    videos_menu,
+    video_add_start,
+    video_add_message,
+    video_publish,
+    video_cancel,
+)
+
 
 async def post_init(application: Application):
     await init_db()
@@ -42,11 +50,6 @@ async def post_init(application: Application):
 
 
 async def admin_text_message(update: Update, context):
-    """
-    مدیریت پیام‌های متنی پنل ادمین.
-    فقط یکی از حالت‌های افزودن سایت یا کانال فعال می‌شود.
-    """
-
     if context.user_data.get("adding_site"):
         await site_add_message(update, context)
         return
@@ -54,6 +57,11 @@ async def admin_text_message(update: Update, context):
     if context.user_data.get("adding_channel"):
         await channel_add_message(update, context)
         return
+
+
+async def admin_video_message(update: Update, context):
+    if context.user_data.get("adding_video"):
+        await video_add_message(update, context)
 
 
 def main():
@@ -75,17 +83,11 @@ def main():
     # =========================
 
     application.add_handler(
-        CommandHandler(
-            "start",
-            start
-        )
+        CommandHandler("start", start)
     )
 
     application.add_handler(
-        CommandHandler(
-            "admin",
-            admin_panel
-        )
+        CommandHandler("admin", admin_panel)
     )
 
     # =========================
@@ -107,7 +109,7 @@ def main():
     )
 
     # =========================
-    # Admin main menu
+    # Admin menu
     # =========================
 
     application.add_handler(
@@ -189,7 +191,39 @@ def main():
     )
 
     # =========================
-    # Admin text input
+    # Video management
+    # =========================
+
+    application.add_handler(
+        CallbackQueryHandler(
+            videos_menu,
+            pattern="^admin_videos$"
+        )
+    )
+
+    application.add_handler(
+        CallbackQueryHandler(
+            video_add_start,
+            pattern="^video_add$"
+        )
+    )
+
+    application.add_handler(
+        CallbackQueryHandler(
+            video_publish,
+            pattern="^video_publish$"
+        )
+    )
+
+    application.add_handler(
+        CallbackQueryHandler(
+            video_cancel,
+            pattern="^video_cancel$"
+        )
+    )
+
+    # =========================
+    # Admin text
     # =========================
 
     application.add_handler(
@@ -200,7 +234,18 @@ def main():
     )
 
     # =========================
-    # Start bot
+    # Admin video
+    # =========================
+
+    application.add_handler(
+        MessageHandler(
+            filters.VIDEO,
+            admin_video_message
+        )
+    )
+
+    # =========================
+    # Start
     # =========================
 
     print("🤖 SPR Video Bot is running...")
