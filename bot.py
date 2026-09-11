@@ -30,6 +30,15 @@ from handlers.admin_sites import (
     site_delete,
 )
 
+from handlers.admin_channels import (
+    channels_menu,
+    channels_list,
+    channel_add_start,
+    channel_add_message,
+    channel_remove_start,
+    channel_delete,
+)
+
 
 # ==========================================
 # شروع ربات
@@ -98,7 +107,7 @@ def main():
     )
 
     # ======================================
-    # پنل مدیریت اصلی
+    # پنل مدیریت
     # ======================================
 
     application.add_handler(
@@ -141,7 +150,47 @@ def main():
     )
 
     # ======================================
-    # دریافت پیام هنگام افزودن سایت
+    # مدیریت کانال‌ها
+    # ======================================
+
+    application.add_handler(
+        CallbackQueryHandler(
+            channels_menu,
+            pattern="^admin_channels$"
+        )
+    )
+
+    application.add_handler(
+        CallbackQueryHandler(
+            channels_list,
+            pattern="^channel_list$"
+        )
+    )
+
+    application.add_handler(
+        CallbackQueryHandler(
+            channel_add_start,
+            pattern="^channel_add$"
+        )
+    )
+
+    application.add_handler(
+        CallbackQueryHandler(
+            channel_remove_start,
+            pattern="^channel_remove$"
+        )
+    )
+
+    application.add_handler(
+        CallbackQueryHandler(
+            channel_delete,
+            pattern="^channel_delete_"
+        )
+    )
+
+    # ======================================
+    # دریافت پیام‌های متنی
+    # برای افزودن سایت یا کانال
     # ======================================
 
     application.add_handler(
@@ -151,8 +200,15 @@ def main():
         )
     )
 
+    application.add_handler(
+        MessageHandler(
+            filters.TEXT & ~filters.COMMAND,
+            channel_add_message
+        )
+    )
+
     # ======================================
-    # اجرای Polling
+    # اجرای ربات
     # ======================================
 
     print(
