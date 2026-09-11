@@ -60,7 +60,7 @@ async def admin_panel(
 
 
 # ==========================================
-# منوی مدیریت
+# مدیریت منوی ادمین
 # ==========================================
 
 async def admin_menu_callback(
@@ -69,7 +69,6 @@ async def admin_menu_callback(
 ):
 
     query = update.callback_query
-
     user = update.effective_user
 
     if not is_admin(user.id):
@@ -81,10 +80,7 @@ async def admin_menu_callback(
 
     await query.answer()
 
-    # -----------------------------
     # مدیریت سایت‌ها
-    # -----------------------------
-
     if query.data == "admin_sites":
 
         from handlers.admin_sites import sites_menu
@@ -96,44 +92,40 @@ async def admin_menu_callback(
 
         return
 
-    # -----------------------------
     # مدیریت کانال‌ها
-    # -----------------------------
+    if query.data == "admin_channels":
 
-    elif query.data == "admin_channels":
+        from handlers.admin_channels import channels_menu
 
-        await query.edit_message_text(
-            "📢 مدیریت کانال‌ها\n\n"
-            "این بخش در مرحله بعد تکمیل می‌شود."
+        await channels_menu(
+            update,
+            context
         )
 
-    # -----------------------------
-    # مدیریت ویدیوها
-    # -----------------------------
+        return
 
-    elif query.data == "admin_videos":
+    # مدیریت ویدیوها
+    if query.data == "admin_videos":
 
         await query.edit_message_text(
             "🎬 مدیریت ویدیوها\n\n"
-            "این بخش در مرحله بعد تکمیل می‌شود."
+            "این بخش را در مرحله بعد تکمیل می‌کنیم."
         )
 
-    # -----------------------------
-    # آمار
-    # -----------------------------
+        return
 
-    elif query.data == "admin_stats":
+    # آمار ربات
+    if query.data == "admin_stats":
 
         await query.edit_message_text(
             "📊 آمار ربات\n\n"
-            "این بخش در مرحله بعد تکمیل می‌شود."
+            "این بخش را در مرحله بعد تکمیل می‌کنیم."
         )
 
-    # -----------------------------
-    # بازگشت
-    # -----------------------------
+        return
 
-    elif query.data == "admin_back":
+    # بازگشت به پنل
+    if query.data == "admin_back":
 
         keyboard = [
             [
@@ -166,4 +158,4 @@ async def admin_menu_callback(
             "⚙️ پنل مدیریت SPR\n\n"
             "از منوی زیر یک گزینه را انتخاب کن:",
             reply_markup=InlineKeyboardMarkup(keyboard)
-    )
+        )
