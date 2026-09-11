@@ -14,19 +14,22 @@ from handlers.callbacks import (
     check_membership_callback,
 )
 
+from handlers.admin import (
+    admin_panel,
+    admin_menu_callback,
+)
+
 
 async def post_init(application: Application):
-    """
-    اجرای اولیه دیتابیس هنگام روشن شدن ربات
-    """
     await init_db()
     print("✅ Database initialized")
 
 
 def main():
+
     if not BOT_TOKEN:
         raise ValueError(
-            "❌ BOT_TOKEN در فایل .env تنظیم نشده است."
+            "❌ BOT_TOKEN تنظیم نشده است."
         )
 
     application = (
@@ -36,12 +39,26 @@ def main():
         .build()
     )
 
-    # /start
+    # =========================
+    # User commands
+    # =========================
+
     application.add_handler(
         CommandHandler("start", start)
     )
 
-    # دکمه دریافت ویدیو
+    # =========================
+    # Admin
+    # =========================
+
+    application.add_handler(
+        CommandHandler("admin", admin_panel)
+    )
+
+    # =========================
+    # User buttons
+    # =========================
+
     application.add_handler(
         CallbackQueryHandler(
             get_video_callback,
@@ -49,11 +66,21 @@ def main():
         )
     )
 
-    # دکمه بررسی عضویت
     application.add_handler(
         CallbackQueryHandler(
             check_membership_callback,
             pattern="^check_membership$"
+        )
+    )
+
+    # =========================
+    # Admin buttons
+    # =========================
+
+    application.add_handler(
+        CallbackQueryHandler(
+            admin_menu_callback,
+            pattern="^admin_"
         )
     )
 
