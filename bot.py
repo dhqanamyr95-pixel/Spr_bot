@@ -11,17 +11,14 @@ from config import BOT_TOKEN
 from database import init_db
 
 from handlers.start import start
-
 from handlers.callbacks import (
     get_video_callback,
     check_membership_callback,
 )
-
 from handlers.admin import (
     admin_panel,
     admin_menu_callback,
 )
-
 from handlers.admin_sites import (
     sites_list,
     site_add_start,
@@ -29,7 +26,6 @@ from handlers.admin_sites import (
     site_remove_start,
     site_delete,
 )
-
 from handlers.admin_channels import (
     channels_menu,
     channels_list,
@@ -40,25 +36,29 @@ from handlers.admin_channels import (
 )
 
 
-# ==========================================
-# شروع ربات
-# ==========================================
-
 async def post_init(application: Application):
-
     await init_db()
-
     print("✅ Database initialized")
 
 
-# ==========================================
-# اجرای ربات
-# ==========================================
+async def admin_text_message(update: Update, context):
+    """
+    مدیریت پیام‌های متنی پنل ادمین.
+    فقط یکی از حالت‌های افزودن سایت یا کانال فعال می‌شود.
+    """
+
+    if context.user_data.get("adding_site"):
+        await site_add_message(update, context)
+        return
+
+    if context.user_data.get("adding_channel"):
+        await channel_add_message(update, context)
+        return
+
 
 def main():
 
     if not BOT_TOKEN:
-
         raise ValueError(
             "❌ BOT_TOKEN تنظیم نشده است."
         )
@@ -70,9 +70,9 @@ def main():
         .build()
     )
 
-    # ======================================
-    # دستورات
-    # ======================================
+    # =========================
+    # Commands
+    # =========================
 
     application.add_handler(
         CommandHandler(
@@ -88,9 +88,9 @@ def main():
         )
     )
 
-    # ======================================
-    # دریافت ویدیو
-    # ======================================
+    # =========================
+    # User callbacks
+    # =========================
 
     application.add_handler(
         CallbackQueryHandler(
@@ -106,9 +106,9 @@ def main():
         )
     )
 
-    # ======================================
-    # پنل مدیریت
-    # ======================================
+    # =========================
+    # Admin main menu
+    # =========================
 
     application.add_handler(
         CallbackQueryHandler(
@@ -117,9 +117,9 @@ def main():
         )
     )
 
-    # ======================================
-    # مدیریت سایت‌ها
-    # ======================================
+    # =========================
+    # Site management
+    # =========================
 
     application.add_handler(
         CallbackQueryHandler(
@@ -149,9 +149,9 @@ def main():
         )
     )
 
-    # ======================================
-    # مدیریت کانال‌ها
-    # ======================================
+    # =========================
+    # Channel management
+    # =========================
 
     application.add_handler(
         CallbackQueryHandler(
@@ -188,42 +188,27 @@ def main():
         )
     )
 
-    # ======================================
-    # دریافت پیام‌های متنی
-    # برای افزودن سایت یا کانال
-    # ======================================
+    # =========================
+    # Admin text input
+    # =========================
 
     application.add_handler(
         MessageHandler(
             filters.TEXT & ~filters.COMMAND,
-            site_add_message
+            admin_text_message
         )
     )
 
-    application.add_handler(
-        MessageHandler(
-            filters.TEXT & ~filters.COMMAND,
-            channel_add_message
-        )
-    )
+    # =========================
+    # Start bot
+    # =========================
 
-    # ======================================
-    # اجرای ربات
-    # ======================================
-
-    print(
-        "🤖 SPR Video Bot is running..."
-    )
+    print("🤖 SPR Video Bot is running...")
 
     application.run_polling(
         allowed_updates=Update.ALL_TYPES
     )
 
 
-# ==========================================
-# اجرای اصلی
-# ==========================================
-
 if __name__ == "__main__":
-
     main()
