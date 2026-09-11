@@ -343,3 +343,66 @@ async def add_request(
         ))
 
         await db.commit()
+
+# ==========================================
+# Video requests
+# ==========================================
+
+async def set_user_video_request(
+    user_id,
+    video_id
+):
+
+    async with aiosqlite.connect(DATABASE_NAME) as db:
+
+        await db.execute(
+            "DELETE FROM user_requests WHERE user_id = ?",
+            (user_id,)
+        )
+
+        await db.execute("""
+            INSERT INTO user_requests
+            (user_id, video_id)
+            VALUES (?, ?)
+        """, (
+            user_id,
+            video_id
+        ))
+
+        await db.commit()
+
+
+async def get_user_video_request(
+    user_id
+):
+
+    async with aiosqlite.connect(DATABASE_NAME) as db:
+
+        cursor = await db.execute("""
+            SELECT video_id
+            FROM user_requests
+            WHERE user_id = ?
+            ORDER BY id DESC
+            LIMIT 1
+        """, (user_id,))
+
+        result = await cursor.fetchone()
+
+        if result:
+            return result[0]
+
+        return None
+
+
+async def clear_user_video_request(
+    user_id
+):
+
+    async with aiosqlite.connect(DATABASE_NAME) as db:
+
+        await db.execute(
+            "DELETE FROM user_requests WHERE user_id = ?",
+            (user_id,)
+        )
+
+        await db.commit()
